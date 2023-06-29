@@ -20,8 +20,8 @@ class AppServiceProvider extends ServiceProvider
     // Laravelアプリケーションが生成する全てのURLで、安全な HTTPS を使用するように設定(redirect, route)
     public function boot(UrlGenerator $url)
     {
-        if (env('APP_ENV') == 'production') {
-            $url->forceScheme('https');
+        if (env("APP_ENV") == "production") {
+            $url->forceScheme("https");
         }
     }
 }
