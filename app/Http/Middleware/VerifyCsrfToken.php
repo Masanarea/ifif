@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        // WebhookはPOSTメソッドでリクエストが来るので、 'line/*' のルートをCSRFの対象外に設定
+        "line/*",
     ];
 }
