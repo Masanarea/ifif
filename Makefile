@@ -5,3 +5,6 @@ format:
 	npm run prettier -- resources/* --write
 	npm run prettier -- routes/* --write
 	npm run prettier -- tests/* --write
+
+clear config cashe:
+	php artisan config:clear
