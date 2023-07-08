@@ -30,7 +30,6 @@ class LineWebhookController extends Controller
 
                     $client = new \GuzzleHttp\Client();
                     $config = new \LINE\Clients\MessagingApi\Configuration();
-                    // ZQ20usEaSYqIBOb+9Ckzgz590dZDsNR2DaHJhidaj4xYwN+Dn55zPHEhMPnuZOPSWCdaueD21zl9VTgg1sdcxvzsGSLLD+u8lFRtQXwXcvLqB2dVm3d70iL8DUJAgMNLpszgwjPeRPTxN8V8+ZV6LAdB04t89/1O/w1cDnyilFU=
                     $config->setAccessToken(
                         config("services.line.message.channel_token")
                     );
