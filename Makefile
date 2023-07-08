@@ -11,6 +11,8 @@ clear config cashe:
 
 # マイグレーションファイル新規作成時
 # php artisan make:migration create_management_user_table --create=management_user
+# php artisan make:migration change_managers_table
+
 
 # モデル新規作成時
 # line_infoテーブルを作成する場合、
@@ -34,3 +36,13 @@ clear config cashe:
 # テーブルのカラム一覧
 # SHOW COLUMNS FROM foo;
 
+
+
+# ルートのキャッシュ削除
+# php artisan route:cache
+
+# コンフィグのキャッシュ削除
+# php artisan config:clear
+
+# フォームリクエスト
+# php artisan make:request RegisterRequest

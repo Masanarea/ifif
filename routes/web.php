@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\ManagerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,26 @@ use Illuminate\Support\Facades\Route;
 Route::get("/", function () {
     return view("welcome");
 });
+
+Route::group(["middleware" => ["auth:manager"]], function () {
+    Route::get("/manager", [ManagerController::class, "top"])->name(
+        "manager.top"
+    );
+});
+
+Route::get("/manager/register", [
+    ManagerController::class,
+    "showRegisterForm",
+])->name("manager.register.page");
+Route::post("/manager/register", [ManagerController::class, "register"])->name(
+    "manager.register"
+);
+Route::get("/manager/login", [ManagerController::class, "showLoginForm"])->name(
+    "manager.login.page"
+);
+Route::post("/manager/login", [ManagerController::class, "login"])->name(
+    "manager.login"
+);
 
 Route::post(
     "/line/webhook/message",
