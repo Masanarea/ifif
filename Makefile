@@ -8,3 +8,29 @@ format:
 
 clear config cashe:
 	php artisan config:clear
+
+# マイグレーションファイル新規作成時
+# php artisan make:migration create_management_user_table --create=management_user
+
+# モデル新規作成時
+# line_infoテーブルを作成する場合、
+# php artisan make:model LineInfo
+
+# 特定のマイグレーションファイル実行時
+# php artisan migrate --path=/database/migrations/my_migration.php
+
+
+
+
+
+# SQLコマンド
+
+# テーブル一覧
+# show tables;
+
+# テーブルの名前変更
+# RENAME TABLE user TO users;
+
+# テーブルのカラム一覧
+# SHOW COLUMNS FROM foo;
+

@@ -2,37 +2,27 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Model;
 
-class User extends Authenticatable
+// モデルは単数系
+class User extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    // Flightモデルがflightsテーブルにレコードを格納し、AirTrafficControllerモデルはair_traffic_controllersテーブルにレコードを格納
+    /**
+     * モデルに関連付けるテーブル
+     *
+     * @var string
+     */
+    // protected $table = 'users';
 
     /**
-     * The attributes that are mass assignable.
+     * テーブルに関連付ける主キー
      *
-     * @var array<int, string>
+     * @var string
      */
-    protected $fillable = ["name", "email", "password"];
+    // protected $primaryKey = 'flight_id';
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = ["password", "remember_token"];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        "email_verified_at" => "datetime",
-        "password" => "hashed",
-    ];
+    // タイムスタンプの保存に使用するカラム名をカスタマイズ
+    const UPDATED_AT = "upd_timestamp";
 }
