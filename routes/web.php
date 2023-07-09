@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ManagerController;
+use App\Http\Controllers\Manager\LineInfoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,10 @@ Route::group(["middleware" => ["auth:manager"]], function () {
     Route::get("/manager", [ManagerController::class, "top"])->name(
         "manager.top"
     );
+    Route::get("/manager/line-info", [
+        LineInfoController::class,
+        "index",
+    ])->name("manager.line_info");
 });
 
 Route::get("/manager/register", [
