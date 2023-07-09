@@ -28,16 +28,16 @@
     <div class="container mx-auto p-6">
         @auth('manager')
             <div class="p-6 bg-white shadow rounded">
-                <h2 class="text-xl font-semibold mb-4">LINE情報</h2>
+                <h2 class="text-xl font-semibold mb-4">担当者のLINEアカウント情報</h2>
 
                 <table class="table-auto w-full">
                     <thead>
                         <tr>
                             <th class="px-4 py-2">LINE ID</th>
-                            <th class="px-4 py-2">DisplayName</th>
-                            <th class="px-4 py-2">Language</th>
-                            <th class="px-4 py-2">PictureUrl</th>
-                            <th class="px-4 py-2">StatusMessage</th>
+                            <th class="px-4 py-2">ユーザー名</th>
+                            <th class="px-4 py-2">写真</th>
+                            <th class="px-4 py-2">ステータスメッセージ</th>
+                            <th class="px-4 py-2">言語</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,11 +45,11 @@
                             <tr>
                                 <td class="border px-4 py-2">{{ $lineInfo->line_id }}</td>
                                 <td class="border px-4 py-2">{{ $lineInfo->displayName }}</td>
-                                <td class="border px-4 py-2">{{ $lineInfo->language }}</td>
                                 <td class="border px-4 py-2">
                                     <img src="{{ $lineInfo->pictureUrl }}" alt="Profile Picture" width="50">
                                 </td>
                                 <td class="border px-4 py-2">{{ $lineInfo->statusMessage }}</td>
+                                <td class="border px-4 py-2">{{ $lineInfo->language }}</td>
                             </tr>
                         @empty
                             <tr>

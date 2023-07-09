@@ -9,6 +9,13 @@ use LINE\Clients\MessagingApi\Model\TextMessage;
 use LINE\Clients\MessagingApi\Model\UserProfileResponse;
 use Illuminate\Support\Facades\Log;
 
+use App\Models\LineInfo;
+use App\Models\Manager;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use LINE\Clients\MessagingApi\Api\MessagingApiApi;
+use LINE\Clients\MessagingApi\Configuration;
+
 class LineWebhookController extends Controller
 {
     public function message(Request $request)
@@ -17,10 +24,6 @@ class LineWebhookController extends Controller
         $data = $request->all();
         $events = $data["events"];
         Log::debug($events);
-        // Log::debug( $data);
-        // var_dump($events);
-        // Log::debug("services.line.message.channel_token:  ");
-        // Log::debug(config("services.line.message.channel_token"));
 
         if (isset($events) && is_array($events)) {
             foreach ($events as $event) {
@@ -29,49 +32,47 @@ class LineWebhookController extends Controller
                     Log::debug("ReplyToken: " . $replyToken);
 
                     $client = new \GuzzleHttp\Client();
-                    $config = new \LINE\Clients\MessagingApi\Configuration();
+                    $config = new Configuration();
                     $config->setAccessToken(
                         config("services.line.message.channel_token")
                     );
-                    $messagingApi = new \LINE\Clients\MessagingApi\Api\MessagingApiApi(
+                    $messagingApi = new MessagingApiApi(
                         client: $client,
                         config: $config
                     );
-                    // $UserProfileResponse = new UserProfileResponse();
-                    $UserProfileResponse = $messagingApi->getProfile(
+                    $userProfileResponse = $messagingApi->getProfile(
                         userId: $event["source"]["userId"]
                     );
-                    // $UserProfileResponse
-                    Log::debug($UserProfileResponse);
-                    // Log::debug($UserProfileResponse->getPictureUrl());
-                    // Log::debug($UserProfileResponse->getModelName());
-                    // Log::debug($UserProfileResponse->getLanguage());
-                    // Log::debug($UserProfileResponse->getDisplayName());
-                    // Log::debug($UserProfileResponse->getStatusMessage());
-                    // Log::debug($UserProfileResponse->getUserId());
-                    // Log::debug($UserProfileResponse->setStatusMessage('this message is test from VScode!'));
-                    // $UserProfileResponse->setStatusMessage('this message is test from VScode!');
-                    // $UserProfileResponse = $messagingApi->getProfile(
-                    //     userId: $event['source']['userId']
-                    // );
+                    Log::debug($userProfileResponse);
 
-                    // ユーザからのメッセージをチェック
-                    $userMessage = $event["message"]["text"];
-                    $replyText =
-                        "申し訳ありませんが、\n該当ワード以外を打ち込まないでください。";
+                    // ユーザーの LINE ID に基づいたデータを取得または作成(「アップサート」操作)
+                    $lineId = $userProfileResponse->getUserId();
+                    $lineInfo = LineInfo::where("line_id", $lineId)->first();
 
-                    if ($userMessage == "診断開始") {
-                        $replyText =
-                            "診断開始\nQ1:あなたの現在のストレス度合いは以下のどれに当てはまりますか\n\n・悪い\n・普通\n・良い";
-                    } elseif ($userMessage == "悪い") {
-                        $replyText =
-                            "調子が悪いのですね。お大事になさってください。";
-                    } elseif ($userMessage == "普通") {
-                        $replyText = "普通であれば問題ありません。";
-                    } elseif ($userMessage == "良い") {
-                        $replyText =
-                            "調子がいいのであればよかったです。キープしていきましょう。";
+                    if ($lineInfo) {
+                        // データが既に存在すれば更新
+                        $lineInfo->update([
+                            "displayName" => $userProfileResponse->getDisplayName(),
+                            "language" => $userProfileResponse->getLanguage(),
+                            "pictureUrl" => $userProfileResponse->getPictureUrl(),
+                            "statusMessage" => $userProfileResponse->getStatusMessage(),
+                        ]);
+                    } else {
+                        // データが存在しなければ新規作成
+                        $lineInfo = LineInfo::create([
+                            "line_id" => $lineId,
+                            "displayName" => $userProfileResponse->getDisplayName(),
+                            "language" => $userProfileResponse->getLanguage(),
+                            "pictureUrl" => $userProfileResponse->getPictureUrl(),
+                            "statusMessage" => $userProfileResponse->getStatusMessage(),
+                        ]);
                     }
+
+                    $userMessage = $event["message"]["text"];
+                    $replyText = $this->handleUserMessage(
+                        $userMessage,
+                        $lineInfo
+                    );
 
                     $message = new TextMessage([
                         "type" => "text",
@@ -86,7 +87,7 @@ class LineWebhookController extends Controller
                     try {
                         $response = $messagingApi->replyMessage($request);
                         // Success
-                    } catch (\LINE\Clients\MessagingApi\Api\MessagingApiApi $e) {
+                    } catch (MessagingApiApi $e) {
                         // Failed
                         Log::error(
                             "Error Log: " .
@@ -98,5 +99,58 @@ class LineWebhookController extends Controller
                 }
             }
         }
+    }
+
+    private function handleUserMessage($userMessage, $lineInfo)
+    {
+        switch ($lineInfo->sync_step_cd) {
+            case 0: // 何もしていない状態 + メールアドレス入力待ち状態
+                if ($userMessage == "同期開始") {
+                    $lineInfo->sync_step_cd = 1;
+                    $lineInfo->save();
+                    return "メールアドレスを入力してください";
+                }
+                return "申し訳ありませんが、\n同期を開始するためには\n「同期開始」\nを入力してください。";
+
+            case 1: //メールアドレス入力待ち状態
+                $validator = Validator::make(
+                    ["email" => $userMessage],
+                    [
+                        "email" => "required|email",
+                    ]
+                );
+
+                if ($validator->fails()) {
+                    return "メールアドレスの形式が間違っています。\n正しいメールアドレスを入力してください。";
+                }
+
+                $lineInfo->temp_email = $userMessage;
+                $lineInfo->sync_step_cd = 2;
+                $lineInfo->save();
+                //メールアドレス登録完了状態
+
+                return "続いて、パスワードを入力してください";
+
+            case 2: //メールアドレス保存状態(※後はパスワードのみ)
+                $manager = Manager::where(
+                    "email",
+                    $lineInfo->temp_email
+                )->first();
+                if ($manager && Hash::check($userMessage, $manager->password)) {
+                    $lineInfo->manager_id = $manager->id;
+                    $lineInfo->sync_step_cd = 3;
+                    $lineInfo->save();
+                    return "同期が完了しました";
+                } else {
+                    $lineInfo->sync_step_cd = 0;
+                    $lineInfo->save();
+                    return "該当するユーザーが見つかりませんでした。\n再度「同期開始」を入力してやり直してください。";
+                }
+
+            case 3: //同期完了状態
+                return "同期が完了しました";
+        }
+
+        return "申し訳ありませんが、予期しないエラーが発生しました。(エラーコード: 1000)";
     }
 }

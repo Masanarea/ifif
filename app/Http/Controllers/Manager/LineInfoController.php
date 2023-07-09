@@ -13,7 +13,7 @@ class LineInfoController extends Controller
     public function index()
     {
         $managerId = Auth::guard("manager")->user()->id;
-        $lineInfos = LineInfo::where("user_id", $managerId)
+        $lineInfos = LineInfo::where("manager_id", $managerId)
             ->where("del_flag", CommonConstants::DEL_FLG["OFF"])
             ->get();
 
