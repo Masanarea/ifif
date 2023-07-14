@@ -24,6 +24,9 @@ return new class extends Migration {
                 $table->string("del_action")->nullable();
                 $table->boolean("del_flag")->default(0);
                 $table->text("question");
+                $table->string("manager_id"); // 質問のテキスト
+                $table->string("value"); // 質問のテキスト
+                $table->integer("sort_num"); // 質問の順序
             });
         }
     }

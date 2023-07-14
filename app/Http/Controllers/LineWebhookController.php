@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Log;
 
 use App\Models\LineInfo;
 use App\Models\Manager;
+use App\Models\UserQuizState;
+use App\Models\Question;
+use App\Models\Answer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
@@ -89,7 +92,8 @@ class LineWebhookController extends Controller
                     $userMessage = $event["message"]["text"];
                     $replyText = $this->handleUserMessage(
                         $userMessage,
-                        $lineInfo
+                        $lineInfo,
+                        $manager_id
                     );
 
                     $message = new TextMessage([
@@ -119,7 +123,7 @@ class LineWebhookController extends Controller
         }
     }
 
-    private function handleUserMessage($userMessage, $lineInfo)
+    private function handleUserMessage($userMessage, $lineInfo, $manager_id)
     {
         return "作業中です。もう少々お待ちください。";
         // LINE トークンのセッティング処理
@@ -185,6 +189,111 @@ class LineWebhookController extends Controller
         //         return "同期が完了しました";
         // }
 
+        // マネージャーのクイズの進行状況を取得
+        $quizState = UserQuizState::where(
+            "user_id",
+            $lineInfo->user_id
+        )->first();
+
+        // クイズ開始の処理
+        if ($userMessage == "クイズ開始") {
+            // データが存在しなければ新規作成
+            if (!$quizState) {
+                $quizState = UserQuizState::create([
+                    "user_id" => $lineInfo->user_id,
+                    // 初期状態ではcurrent_question_idは未設定
+                    // question_phaseは０
+                ]);
+            }
+
+            // 最初の質問を取得
+            $question = Question::where("manager_id", $manager_id)
+                ->orderBy("sort_num", "asc")
+                ->first();
+
+            // 質問が存在しない場合
+            if (!$question) {
+                return "マネージャーに紐付いた質問が見つかりませんでした。もしくはセットされていません。";
+            }
+
+            $quizState->current_question_id = $question->id;
+            $quizState->question_phase = 1;
+            $quizState->save();
+
+            // 質問と選択肢を表示
+            $options = $question
+                ->options()
+                ->pluck("value")
+                ->toArray();
+            return $question->text . "\n選択肢:\n" . implode("\n", $options);
+        } else {
+            // データが存在しない場合
+            if (!$quizState) {
+                return "マネージャーのクイズの進行状況が記録されていません。(エラーコード: 2000)";
+            }
+
+            // 現在の質問に対する回答の処理
+            $currentQuestion = Question::find($quizState->current_question_id);
+            if ($currentQuestion) {
+                // 選択肢をチェック
+                $option = $currentQuestion
+                    ->options()
+                    ->where("value", $userMessage)
+                    ->first();
+                if (!$option) {
+                    $options = $currentQuestion
+                        ->options()
+                        ->pluck("value")
+                        ->toArray();
+                    return "選択肢から選んでください:\n" .
+                        implode("\n", $options);
+                }
+
+                // 問題なく回答
+
+                // 回答を保存
+                Answer::create([
+                    "user_id" => $lineInfo->user_id,
+                    "question_id" => $currentQuestion->id,
+                    "option_id" => $option->id,
+                ]);
+
+                // 次の質問を取得
+                $nextQuestion = Question::where(
+                    "sort_num",
+                    ">",
+                    $currentQuestion->order
+                )
+                    ->orderBy("sort_num", "asc")
+                    ->first();
+                if ($nextQuestion) {
+                    $quizState->current_question_id = $nextQuestion->id;
+                    $quizState->question_phase = $quizState->question_phase + 1;
+                    $quizState->save();
+
+                    // 質問と選択肢を表示
+                    $options = $nextQuestion
+                        ->options()
+                        ->pluck("value")
+                        ->toArray();
+                    return $nextQuestion->text .
+                        "\n選択肢:\n" .
+                        implode("\n", $options);
+                } else {
+                    // 全ての質問が終わったら結果を表示
+                    return $this->showResult($lineInfo, $manager_id);
+                }
+            } else {
+                return "error(エラーコード: 3000)";
+            }
+        }
+
         return "申し訳ありませんが、予期しないエラーが発生しました。(エラーコード: 1000)";
+    }
+
+    private function showResult($lineInfo, $manager_id)
+    {
+        // ここで結果を計算・表示するロジックを書く
+        return "クイズが終了しました。結果を表示";
     }
 }
