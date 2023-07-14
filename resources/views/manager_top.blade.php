@@ -55,16 +55,14 @@
                     <dd class="mb-2">{{ Auth::guard('manager')->user()->first_name_kana }}</dd>
 
                     <dt class="font-semibold">チャネルID:</dt>
-                    <dd class="mb-2">nwnuiwnvu02ujf24jf29343943jf</dd>
-                    {{-- <dd class="mb-2">{{ Auth::guard('manager')->user()->first_name_kana }}</dd> --}}
-
-                    <dt class="font-semibold">チャネルアクセストークン:</dt>
-                    <dd class="mb-2">nwnuiwnvu02ujf24jf29343943jf</dd>
-                    {{-- <dd class="mb-2">{{ Auth::guard('manager')->user()->first_name_kana }}</dd> --}}
+                    <dd class="mb-2">{{ $decryptedChannel_id }}</dd>
 
                     <dt class="font-semibold">チャネルシークレットトークン:</dt>
-                    <dd class="mb-2">nwnuiwnvu02ujf24jf29343943jf</dd>
-                    {{-- <dd class="mb-2">{{ Auth::guard('manager')->user()->first_name_kana }}</dd> --}}
+                    <dd class="mb-2">{{ $decryptedChannel_secret }}</dd>
+
+                    <dt class="font-semibold">チャネルアクセストークン:</dt>
+                    <dd class="mb-2">{{ $decryptedChannel_token }}</dd>
+
                 </dl>
             </div>
         @else

@@ -12,6 +12,7 @@ use App\Models\Manager;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Crypt;
 
 class ManagerController extends Controller
 {
@@ -45,14 +46,20 @@ class ManagerController extends Controller
      */
     public function top()
     {
-        // echo "<pre>";
-        // var_dump($manager = Auth::guard('manager')->user());
-        // echo "</pre>";
-        // echo "<pre>";
-        // var_dump($manager = Auth::guard('manager')->user()->email);
-        // echo "</pre>";
-        // exit;
-        return view("manager_top");
+        $channel_id = Crypt::decryptString(
+            Auth::guard("manager")->user()->channel_id
+        );
+        $channel_secret = Crypt::decryptString(
+            Auth::guard("manager")->user()->channel_secret
+        );
+        $channel_token = Crypt::decryptString(
+            Auth::guard("manager")->user()->channel_token
+        );
+        return view("manager_top", [
+            "decryptedChannel_id" => $channel_id,
+            "decryptedChannel_secret" => $channel_secret,
+            "decryptedChannel_token" => $channel_token,
+        ]);
     }
 
     /**

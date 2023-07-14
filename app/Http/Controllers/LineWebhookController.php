@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CommonConstants;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use LINE\Clients\MessagingApi\Model\ReplyMessageRequest;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
 use LINE\Clients\MessagingApi\Configuration;
+use Illuminate\Support\Facades\Crypt;
 
 class LineWebhookController extends Controller
 {
@@ -103,6 +105,20 @@ class LineWebhookController extends Controller
 
     private function handleUserMessage($userMessage, $lineInfo)
     {
+        // LINE トークンのセッティング処理
+        if ($userMessage == "セッティング") {
+            $managerInfo = Manager::where("id", $lineInfo->manager_id)
+                ->where("del_flag", CommonConstants::DEL_FLG["OFF"])
+                ->first();
+            if ($managerInfo) {
+                $managerInfo->channel_id = Crypt::encryptString("");
+                $managerInfo->channel_secret = Crypt::encryptString("");
+                $managerInfo->channel_token = Crypt::encryptString("");
+                $managerInfo->save();
+                return "LINE のアクセストークンのセッティングが完了しました。";
+            }
+        }
+
         switch ($lineInfo->sync_step_cd) {
             case 0: // 何もしていない状態 + メールアドレス入力待ち状態
                 if ($userMessage == "同期開始") {
