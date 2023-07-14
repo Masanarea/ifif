@@ -20,12 +20,30 @@ use Illuminate\Support\Facades\Crypt;
 
 class LineWebhookController extends Controller
 {
+    // メイン機能
     public function message(Request $request)
     {
         Log::debug("debug ログ!");
         $data = $request->all();
         $events = $data["events"];
-        Log::debug($events);
+        // Log::debug($events);
+
+        // クエリ文字列から暗号化されたマネージャーIDを取得
+        $encrypted_manager_id = $request->query("manager_id");
+
+        // 暗号化されたマネージャーIDを復号化
+        $manager_id = Crypt::decryptString($encrypted_manager_id);
+
+        // マネージャーテーブルから該当のマネージャー情報を取得
+        $manager = Manager::find($manager_id);
+
+        // マネージャ情報の取得
+        if ($manager) {
+            $encryptedChannel_token = $manager->channel_token;
+            $channel_token = Crypt::decryptString($encryptedChannel_token);
+        } else {
+            return "access error";
+        }
 
         if (isset($events) && is_array($events)) {
             foreach ($events as $event) {
@@ -35,9 +53,7 @@ class LineWebhookController extends Controller
 
                     $client = new \GuzzleHttp\Client();
                     $config = new Configuration();
-                    $config->setAccessToken(
-                        config("services.line.message.channel_token")
-                    );
+                    $config->setAccessToken($channel_token);
                     $messagingApi = new MessagingApiApi(
                         client: $client,
                         config: $config

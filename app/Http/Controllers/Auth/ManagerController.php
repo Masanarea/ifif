@@ -55,10 +55,14 @@ class ManagerController extends Controller
         $channel_token = Crypt::decryptString(
             Auth::guard("manager")->user()->channel_token
         );
+        $encrypted_manager_id = Crypt::encryptString(
+            Auth::guard("manager")->user()->id
+        );
         return view("manager_top", [
             "decryptedChannel_id" => $channel_id,
             "decryptedChannel_secret" => $channel_secret,
             "decryptedChannel_token" => $channel_token,
+            "encrypted_manager_id" => $encrypted_manager_id,
         ]);
     }
 
