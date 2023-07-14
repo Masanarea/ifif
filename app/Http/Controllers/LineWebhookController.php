@@ -121,67 +121,69 @@ class LineWebhookController extends Controller
 
     private function handleUserMessage($userMessage, $lineInfo)
     {
+        return "作業中です。もう少々お待ちください。";
         // LINE トークンのセッティング処理
-        if ($userMessage == "セッティング") {
-            $managerInfo = Manager::where("id", $lineInfo->manager_id)
-                ->where("del_flag", CommonConstants::DEL_FLG["OFF"])
-                ->first();
-            if ($managerInfo) {
-                $managerInfo->channel_id = Crypt::encryptString("");
-                $managerInfo->channel_secret = Crypt::encryptString("");
-                $managerInfo->channel_token = Crypt::encryptString("");
-                $managerInfo->save();
-                return "LINE のアクセストークンのセッティングが完了しました。";
-            }
-        }
+        // if ($userMessage == "セッティング") {
+        //     $managerInfo = Manager::where("id", $lineInfo->manager_id)
+        //         ->where("del_flag", CommonConstants::DEL_FLG["OFF"])
+        //         ->first();
+        //     if ($managerInfo) {
+        //         $managerInfo->channel_id = Crypt::encryptString("");
+        //         $managerInfo->channel_secret = Crypt::encryptString("");
+        //         $managerInfo->channel_token = Crypt::encryptString("");
+        //         $managerInfo->save();
+        //         return "LINE のアクセストークンのセッティングが完了しました。";
+        //     }
+        // }
 
-        switch ($lineInfo->sync_step_cd) {
-            case 0: // 何もしていない状態 + メールアドレス入力待ち状態
-                if ($userMessage == "同期開始") {
-                    $lineInfo->sync_step_cd = 1;
-                    $lineInfo->save();
-                    return "メールアドレスを入力してください";
-                }
-                return "申し訳ありませんが、\n同期を開始するためには\n「同期開始」\nを入力してください。";
+        // LINE アカウントの連携処理
+        // switch ($lineInfo->sync_step_cd) {
+        //     case 0: // 何もしていない状態 + メールアドレス入力待ち状態
+        //         if ($userMessage == "同期開始") {
+        //             $lineInfo->sync_step_cd = 1;
+        //             $lineInfo->save();
+        //             return "メールアドレスを入力してください";
+        //         }
+        //         return "申し訳ありませんが、\n同期を開始するためには\n「同期開始」\nを入力してください。";
 
-            case 1: //メールアドレス入力待ち状態
-                $validator = Validator::make(
-                    ["email" => $userMessage],
-                    [
-                        "email" => "required|email",
-                    ]
-                );
+        //     case 1: //メールアドレス入力待ち状態
+        //         $validator = Validator::make(
+        //             ["email" => $userMessage],
+        //             [
+        //                 "email" => "required|email",
+        //             ]
+        //         );
 
-                if ($validator->fails()) {
-                    return "メールアドレスの形式が間違っています。\n正しいメールアドレスを入力してください。";
-                }
+        //         if ($validator->fails()) {
+        //             return "メールアドレスの形式が間違っています。\n正しいメールアドレスを入力してください。";
+        //         }
 
-                $lineInfo->temp_email = $userMessage;
-                $lineInfo->sync_step_cd = 2;
-                $lineInfo->save();
-                //メールアドレス登録完了状態
+        //         $lineInfo->temp_email = $userMessage;
+        //         $lineInfo->sync_step_cd = 2;
+        //         $lineInfo->save();
+        //         //メールアドレス登録完了状態
 
-                return "続いて、パスワードを入力してください";
+        //         return "続いて、パスワードを入力してください";
 
-            case 2: //メールアドレス保存状態(※後はパスワードのみ)
-                $manager = Manager::where(
-                    "email",
-                    $lineInfo->temp_email
-                )->first();
-                if ($manager && Hash::check($userMessage, $manager->password)) {
-                    $lineInfo->manager_id = $manager->id;
-                    $lineInfo->sync_step_cd = 3;
-                    $lineInfo->save();
-                    return "同期が完了しました";
-                } else {
-                    $lineInfo->sync_step_cd = 0;
-                    $lineInfo->save();
-                    return "該当するユーザーが見つかりませんでした。\n再度「同期開始」を入力してやり直してください。";
-                }
+        //     case 2: //メールアドレス保存状態(※後はパスワードのみ)
+        //         $manager = Manager::where(
+        //             "email",
+        //             $lineInfo->temp_email
+        //         )->first();
+        //         if ($manager && Hash::check($userMessage, $manager->password)) {
+        //             $lineInfo->manager_id = $manager->id;
+        //             $lineInfo->sync_step_cd = 3;
+        //             $lineInfo->save();
+        //             return "同期が完了しました";
+        //         } else {
+        //             $lineInfo->sync_step_cd = 0;
+        //             $lineInfo->save();
+        //             return "該当するユーザーが見つかりませんでした。\n再度「同期開始」を入力してやり直してください。";
+        //         }
 
-            case 3: //同期完了状態
-                return "同期が完了しました";
-        }
+        //     case 3: //同期完了状態
+        //         return "同期が完了しました";
+        // }
 
         return "申し訳ありませんが、予期しないエラーが発生しました。(エラーコード: 1000)";
     }
