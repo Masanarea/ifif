@@ -6,25 +6,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Answer;
 use App\Models\UserQuizState;
+use App\Models\Option;
 
-// モデルは単数系
-class User extends Model
+class Question extends Model
 {
-    // Flightモデルがflightsテーブルにレコードを格納し、AirTrafficControllerモデルはair_traffic_controllersテーブルにレコードを格納
-    /**
-     * モデルに関連付けるテーブル
-     *
-     * @var string
-     */
-    // protected $table = 'users';
-
-    /**
-     * テーブルに関連付ける主キー
-     *
-     * @var string
-     */
-    // protected $primaryKey = 'flight_id';
-
     // タイムスタンプの保存に使用するカラム名をカスタマイズ
     const CREATED_AT = "ins_timestamp";
     const UPDATED_AT = "upd_timestamp";
@@ -37,5 +22,10 @@ class User extends Model
     public function userQuizStates()
     {
         return $this->hasMany(UserQuizState::class);
+    }
+
+    public function options()
+    {
+        return $this->hasMany(Option::class);
     }
 }
