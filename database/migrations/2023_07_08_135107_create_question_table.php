@@ -25,7 +25,6 @@ return new class extends Migration {
                 $table->boolean("del_flag")->default(0);
                 $table->text("question");
                 $table->unsignedBigInteger("manager_id");
-                $table->string("value");
                 $table->integer("sort_num")->default(999);
             });
         }
