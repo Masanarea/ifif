@@ -24,6 +24,9 @@ Route::group(["middleware" => ["auth:manager"]], function () {
     Route::get("/manager", [ManagerController::class, "top"])->name(
         "manager.top"
     );
+    Route::get("/manager/analysis", function () {
+        return view("manager.analysis");
+    })->name("manager.analysis");
     Route::get("/manager/line-info", [
         LineInfoController::class,
         "index",

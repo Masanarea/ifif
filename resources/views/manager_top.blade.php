@@ -48,7 +48,7 @@
                         <a href="{{ route('manager.line_info') }}" class="text-gray-500">ユーザーチャット</a>
                     </div>
                     <div>
-                        <a href="{{ route('manager.line_info') }}" class="text-gray-500">回答分析</a>
+                        <a href="{{ route('manager.analysis') }}" class="text-gray-500">回答分析</a>
                     </div>
                 @endauth
             </div>
