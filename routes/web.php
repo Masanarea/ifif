@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ManagerController;
 use App\Http\Controllers\Manager\LineInfoController;
+use App\Http\Controllers\Manager\QuestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,9 +32,10 @@ Route::group(["middleware" => ["auth:manager"]], function () {
     Route::get("/manager/create-question", function () {
         return view("welcome");
     })->name("manager.create_question");
-    Route::get("/manager/question-list", function () {
-        return view("welcome");
-    })->name("manager.question_list");
+    Route::get("/manager/question-list", [
+        QuestionController::class,
+        "index",
+    ])->name("manager.question_list");
 });
 
 Route::get("/manager/register", [
