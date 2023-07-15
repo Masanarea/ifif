@@ -44,6 +44,17 @@ Route::group(["middleware" => ["auth:manager"]], function () {
         QuestionController::class,
         "index",
     ])->name("manager.question_list");
+    Route::post("manager/logout", [ManagerController::class, "logout"])->name(
+        "manager.logout"
+    );
+    Route::get("/manager/settings", [
+        ManagerController::class,
+        "settings",
+    ])->name("manager.settings");
+    Route::post("/manager/settings/update", [
+        ManagerController::class,
+        "updateSettings",
+    ])->name("manager.settings.update");
 });
 
 Route::get("/manager/register", [

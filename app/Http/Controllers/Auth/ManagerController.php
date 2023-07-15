@@ -46,15 +46,18 @@ class ManagerController extends Controller
      */
     public function top()
     {
-        $channel_id = Crypt::decryptString(
-            Auth::guard("manager")->user()->channel_id
-        );
-        $channel_secret = Crypt::decryptString(
-            Auth::guard("manager")->user()->channel_secret
-        );
-        $channel_token = Crypt::decryptString(
-            Auth::guard("manager")->user()->channel_token
-        );
+        $channel_id = Auth::guard("manager")->user()->channel_id;
+        $channel_secret = Auth::guard("manager")->user()->channel_secret;
+        $channel_token = Auth::guard("manager")->user()->channel_token;
+
+        $channel_id = $channel_id ? Crypt::decryptString($channel_id) : "";
+        $channel_secret = $channel_secret
+            ? Crypt::decryptString($channel_secret)
+            : "";
+        $channel_token = $channel_token
+            ? Crypt::decryptString($channel_token)
+            : "";
+
         $encrypted_manager_id = Crypt::encryptString(
             Auth::guard("manager")->user()->id
         );
@@ -112,6 +115,85 @@ class ManagerController extends Controller
                 ->back()
                 ->withInput()
                 ->withErrors(["error" => "登録に失敗しました。"]);
+        }
+    }
+
+    /**
+     * ログアウト処理
+     */
+    public function logout(Request $request)
+    {
+        Auth::guard("manager")->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route("manager.login.page");
+    }
+
+    /**
+     * アカウント設定画面
+     */
+    public function settings()
+    {
+        $manager = Auth::guard("manager")->user();
+        // var_dump($manager);
+        // exit;
+        $decryptedChannel_token = "";
+
+        if (!empty($manager->channel_token)) {
+            $decryptedChannel_token = Crypt::decryptString(
+                $manager->channel_token
+            );
+            // チャネルトークンが暗号化されていない場合はそのまま代入
+        }
+
+        return view("manager.settings")->with([
+            "manager" => $manager,
+            "decryptedChannel_token" => $decryptedChannel_token,
+        ]);
+    }
+
+    /**
+     * アカウント設定更新処理
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            "last_name" => "required|max:255",
+            "first_name" => "required|max:255",
+            "last_name_kana" => "required|max:255",
+            "first_name_kana" => "required|max:255",
+            "channel_token" => "string|nullable",
+        ]);
+
+        try {
+            DB::beginTransaction();
+            $manager = Auth::guard("manager")->user();
+
+            $manager->last_name = $request->last_name;
+            $manager->first_name = $request->first_name;
+            $manager->last_name_kana = $request->last_name_kana;
+            $manager->first_name_kana = $request->first_name_kana;
+            if (!empty($request->channel_token)) {
+                $manager->channel_token = Crypt::encryptString(
+                    $request->channel_token
+                );
+            } else {
+                $manager->channel_token = null;
+            }
+
+            $manager->save();
+
+            DB::commit();
+            return redirect()
+                ->route("manager.settings")
+                ->with("success", "Settings updated successfully");
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()
+                ->route("manager.settings")
+                ->withErrors(["error" => "Updating settings failed."]);
         }
     }
 }

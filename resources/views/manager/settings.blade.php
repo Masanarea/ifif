@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理画面 - Top</title>
+    <title>管理画面 - 設定</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.css" rel="stylesheet" />
     @vite('resources/css/app.css')
 
@@ -11,6 +11,7 @@
 
 </head>
 <body class="bg-gray-100">
+    <!-- Navigation and other common elements omitted for brevity -->
     <nav class="bg-white p-6">
         <div class="container mx-auto">
             <div class="flex justify-between items-center">
@@ -20,7 +21,7 @@
 
                 @auth('manager')
                     <div>
-                        <a href="{{ route('manager.settings') }}" class="text-gray-500">設定</a>
+                        <a href="{{ url('/manager/settings') }}" class="text-gray-500">設定</a>
                     </div>
                     {{-- <div>
                         <a href="{{ route('manager.line_info') }}" class="text-gray-500">LINE管理アカウント</a>
@@ -64,46 +65,56 @@
     <div class="container mx-auto p-6">
         @auth('manager')
             <div class="p-6 bg-white shadow rounded">
-                <h2 class="text-xl font-semibold mb-4">ログインユーザー情報</h2>
+                <h2 class="text-xl font-semibold mb-4">ユーザー設定</h2>
 
-                <dl>
-                    <dt class="font-semibold">Eメール:</dt>
-                    <dd class="mb-2">{{ Auth::guard('manager')->user()->email }}</dd>
+                @if (session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 mb-4 rounded">
+                        <strong class="font-bold">成功！</strong>
+                        <span class="block sm:inline">{{ session('success') }}</span>
+                    </div>
+                @endif
 
-                    <dt class="font-semibold">名字:</dt>
-                    <dd class="mb-2">ifif</dd>
-                    <dd class="mb-2">{{ Auth::guard('manager')->user()->last_name }}</dd>
+                <form method="POST" action="{{ route('manager.settings.update') }}">
+                    @csrf
 
-                    <dt class="font-semibold">名前:</dt>
-                    <dd class="mb-2">太郎</dd>
-                    <dd class="mb-2">{{ Auth::guard('manager')->user()->first_name }}</dd>
+                    <div>
+                        <label for="last_name" class="font-semibold">名字:</label>
+                        <input id="last_name" type="text" name="last_name" value="{{ $manager->last_name }}">
+                    </div>
 
-                    <dt class="font-semibold">名字(カナ):</dt>
-                    <dd class="mb-2">イフイフ</dd>
-                    <dd class="mb-2">{{ Auth::guard('manager')->user()->last_name_kana }}</dd>
+                    <div>
+                        <label for="first_name" class="font-semibold">名前:</label>
+                        <input id="first_name" type="text" name="first_name" value="{{ $manager->first_name }}">
+                    </div>
 
-                    <dt class="font-semibold">名前(カナ):</dt>
-                    <dd class="mb-2">タロウ</dd>
-                    <dd class="mb-2">{{ Auth::guard('manager')->user()->first_name_kana }}</dd>
+                    <div>
+                        <label for="last_name_kana" class="font-semibold">名字(カナ):</label>
+                        <input id="last_name_kana" type="text" name="last_name_kana" value="{{ $manager->last_name_kana }}">
+                    </div>
 
-                    <dt class="font-semibold">チャネルID:</dt>
-                    <dd class="mb-2">{{ $decryptedChannel_id }}</dd>
+                    <div>
+                        <label for="first_name_kana" class="font-semibold">名前(カナ):</label>
+                        <input id="first_name_kana" type="text" name="first_name_kana" value="{{ $manager->first_name_kana }}">
+                    </div>
 
-                    <dt class="font-semibold">チャネルシークレットトークン:</dt>
-                    <dd class="mb-2">{{ $decryptedChannel_secret }}</dd>
+                    <div>
+                        <label for="channel_token" class="font-semibold">チャネルアクセストークン:</label>
+                        <input id="channel_token" type="text" name="channel_token" value="{{ $decryptedChannel_token }}">
+                    </div>
 
-                    <dt class="font-semibold">チャネルアクセストークン:</dt>
-                    <dd class="mb-2">{{ $decryptedChannel_token }}</dd>
+                    <!-- Add other fields as necessary -->
 
-                    <dt class="font-semibold">URL for Messaging API:</dt>
-                    <dd class="mb-2">https://b93c-125-103-218-181.ngrok-free.app/line/webhook/message?manager_id={{ $encrypted_manager_id }}</dd>
-
-                </dl>
+                    <div class="mt-4">
+                        <button type="submit" class="text-white bg-blue-500 rounded px-4 py-2">更新</button>
+                    </div>
+                </form>
             </div>
         @else
             <p>ログインしてください。</p>
         @endauth
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
+
+    <!-- Scripts omitted for brevity -->
 </body>
 </html>

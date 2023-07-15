@@ -7,6 +7,18 @@
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-200">
+    <nav class="bg-white p-6">
+        <div class="container mx-auto">
+            <div class="flex justify-between items-center">
+                <div>
+                    <a href="{{ route('manager.register') }}" class="text-lg font-semibold text-gray-900">新規登録</a>
+                </div>
+                <div>
+                    <a href="{{ route('manager.login') }}" class="text-lg font-semibold text-gray-900">ログイン</a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <div class="flex items-center justify-center h-screen">
         <div class="bg-white p-8 rounded shadow-lg w-96">
             <h2 class="text-2xl mb-6 text-center">新規登録</h2>
