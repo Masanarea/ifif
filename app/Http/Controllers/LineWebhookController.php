@@ -15,6 +15,7 @@ use App\Models\Manager;
 use App\Models\UserQuizState;
 use App\Models\Question;
 use App\Models\Answer;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use LINE\Clients\MessagingApi\Api\MessagingApiApi;
@@ -80,12 +81,25 @@ class LineWebhookController extends Controller
                         ]);
                     } else {
                         // データが存在しなければ新規作成
+                        $user = User::create([
+                            "last_name" => "LastName",
+                            "first_name" => "FirstName",
+                            "last_name_kana" => "LastNameKana",
+                            "first_name_kana" => "FirstNameKana",
+                            "email" => "email@example.com",
+                            "phone_number" => "1234567890",
+                        ]);
+
+                        $user_id = $user->id;
+                        Log::debug("30f94");
+                        Log::debug($user_id);
                         $lineInfo = LineInfo::create([
                             "line_id" => $lineId,
                             "displayName" => $userProfileResponse->getDisplayName(),
                             "language" => $userProfileResponse->getLanguage(),
                             "pictureUrl" => $userProfileResponse->getPictureUrl(),
                             "statusMessage" => $userProfileResponse->getStatusMessage(),
+                            "user_id" => $user_id,
                         ]);
                     }
 
@@ -125,7 +139,6 @@ class LineWebhookController extends Controller
 
     private function handleUserMessage($userMessage, $lineInfo, $manager_id)
     {
-        return "作業中です。もう少々お待ちください。";
         // LINE トークンのセッティング処理
         // if ($userMessage == "セッティング") {
         //     $managerInfo = Manager::where("id", $lineInfo->manager_id)
@@ -194,6 +207,9 @@ class LineWebhookController extends Controller
             "user_id",
             $lineInfo->user_id
         )->first();
+        if (!empty($quizState) && $quizState->question_phase == 999) {
+            return $this->showResult();
+        }
 
         // クイズ開始の処理
         if ($userMessage == "クイズ開始") {
@@ -201,9 +217,10 @@ class LineWebhookController extends Controller
             if (!$quizState) {
                 $quizState = UserQuizState::create([
                     "user_id" => $lineInfo->user_id,
-                    // 初期状態ではcurrent_question_idは未設定
-                    // question_phaseは０
+                    "manager_id" => $manager_id,
                 ]);
+            } else {
+                return "クイズは既に開始されています。";
             }
 
             // 最初の質問を取得
@@ -225,11 +242,13 @@ class LineWebhookController extends Controller
                 ->options()
                 ->pluck("value")
                 ->toArray();
-            return $question->text . "\n選択肢:\n" . implode("\n", $options);
+            return $question->question .
+                "\n選択肢:\n" .
+                implode("\n", $options);
         } else {
             // データが存在しない場合
             if (!$quizState) {
-                return "マネージャーのクイズの進行状況が記録されていません。(エラーコード: 2000)";
+                return "ユーザーのクイズの進行状況が記録されていません。\n「クイズ開始」を入力してください。";
             }
 
             // 現在の質問に対する回答の処理
@@ -262,7 +281,7 @@ class LineWebhookController extends Controller
                 $nextQuestion = Question::where(
                     "sort_num",
                     ">",
-                    $currentQuestion->order
+                    $currentQuestion->sort_num
                 )
                     ->orderBy("sort_num", "asc")
                     ->first();
@@ -276,10 +295,14 @@ class LineWebhookController extends Controller
                         ->options()
                         ->pluck("value")
                         ->toArray();
-                    return $nextQuestion->text .
-                        "\n選択肢:\n" .
+                    return "次の質問です。\n\n" .
+                        $nextQuestion->question .
+                        "\n\n選択肢:\n" .
                         implode("\n", $options);
                 } else {
+                    $quizState->current_question_id = 999;
+                    $quizState->question_phase = 999;
+                    $quizState->save();
                     // 全ての質問が終わったら結果を表示
                     return $this->showResult($lineInfo, $manager_id);
                 }
@@ -291,7 +314,7 @@ class LineWebhookController extends Controller
         return "申し訳ありませんが、予期しないエラーが発生しました。(エラーコード: 1000)";
     }
 
-    private function showResult($lineInfo, $manager_id)
+    private function showResult($lineInfo = null, $manager_id = null)
     {
         // ここで結果を計算・表示するロジックを書く
         return "クイズが終了しました。結果を表示";

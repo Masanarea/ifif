@@ -13,6 +13,8 @@ class Answer extends Model
     const CREATED_AT = "ins_timestamp";
     const UPDATED_AT = "upd_timestamp";
 
+    protected $fillable = ["user_id", "question_id", "option_id"];
+
     public function user()
     {
         return $this->belongsTo(User::class);

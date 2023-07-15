@@ -20,6 +20,8 @@ class LineInfo extends Model
         "temp_email",
         "sync_step_cd",
         "manager_id",
+        // このように記入しないと、データとして代入されていてもnullとして代入されてしまう。
+        "user_id",
     ];
 
     // タイムスタンプの保存に使用するカラム名をカスタマイズ

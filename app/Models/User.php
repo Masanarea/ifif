@@ -29,6 +29,15 @@ class User extends Model
     const CREATED_AT = "ins_timestamp";
     const UPDATED_AT = "upd_timestamp";
 
+    protected $fillable = [
+        "last_name",
+        "first_name",
+        "last_name_kana",
+        "first_name_kana",
+        "email",
+        "phone_number",
+    ];
+
     public function answers()
     {
         return $this->hasMany(Answer::class);

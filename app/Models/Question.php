@@ -14,6 +14,8 @@ class Question extends Model
     const CREATED_AT = "ins_timestamp";
     const UPDATED_AT = "upd_timestamp";
 
+    protected $fillable = ["manager_id", "sort_num"];
+
     public function answers()
     {
         return $this->hasMany(Answer::class);
