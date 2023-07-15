@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-100">
+    @include('layouts.manager.header')
+
     <div class="container mx-auto my-10">
         <h1 class="text-center text-3xl mb-6">ユーザーの回答分析</h1>
 
@@ -96,5 +98,6 @@
             }
         });
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
 </body>
 </html>

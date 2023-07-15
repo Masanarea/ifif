@@ -7,21 +7,7 @@
     @vite('resources/css/app.css')
 </head>
 <body class="bg-gray-100">
-    <nav class="bg-white p-6">
-        <div class="container mx-auto">
-            <div class="flex justify-between items-center">
-                <div>
-                    <a href="{{ route('manager.top') }}" class="text-lg font-semibold text-gray-900">管理画面</a>
-                </div>
-
-                @auth('manager')
-                    {{-- <div>
-                        <a href="{{ url('/manager/settings') }}" class="text-gray-500">設定</a>
-                    </div> --}}
-                @endauth
-            </div>
-        </div>
-    </nav>
+    @include('layouts.manager.header')
 
     <div class="container mx-auto p-6">
         @auth('manager')
