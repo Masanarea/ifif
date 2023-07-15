@@ -283,6 +283,7 @@ class LineWebhookController extends Controller
                     ">",
                     $currentQuestion->sort_num
                 )
+                    ->where("manager_id", $manager_id)
                     ->orderBy("sort_num", "asc")
                     ->first();
                 if ($nextQuestion) {
