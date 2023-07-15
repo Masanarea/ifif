@@ -27,6 +27,13 @@ Route::group(["middleware" => ["auth:manager"]], function () {
         LineInfoController::class,
         "index",
     ])->name("manager.line_info");
+    // 質問関連
+    Route::get("/manager/create-question", function () {
+        return view("welcome");
+    })->name("manager.create_question");
+    Route::get("/manager/question-list", function () {
+        return view("welcome");
+    })->name("manager.question_list");
 });
 
 Route::get("/manager/register", [

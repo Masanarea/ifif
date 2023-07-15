@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理画面 - Top</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.css" rel="stylesheet" />
+    @vite('resources/css/app.css')
 
     <!-- Tailwind CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
 </head>
 <body class="bg-gray-100">
@@ -21,8 +22,33 @@
                     {{-- <div>
                         <a href="{{ url('/manager/settings') }}" class="text-gray-500">設定</a>
                     </div> --}}
-                    <div>
+                    {{-- <div>
                         <a href="{{ route('manager.line_info') }}" class="text-gray-500">LINE管理アカウント</a>
+                    </div> --}}
+
+                    <!-- Dropdown menu -->
+                    <div>
+                        <button id="questionDropdownButton" data-dropdown-toggle="questionDropdown" class="text-gray-500 hover:text-gray-900 font-medium text-sm px-2 py-1 text-center inline-flex items-center" type="button">質問管理 <svg class="w-2.5 h-2.5 ml-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                        </svg></button>
+
+                        <!-- Dropdown menu -->
+                        <div id="questionDropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
+                            <ul class="py-2 text-sm text-gray-700" aria-labelledby="questionDropdownButton">
+                                <li>
+                                    <a href="{{ route('manager.create_question') }}" class="block px-4 py-2 hover:bg-blue-100">質問作成</a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('manager.question_list') }}" class="block px-4 py-2 hover:bg-blue-100">質問一覧</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ route('manager.line_info') }}" class="text-gray-500">ユーザーチャット</a>
+                    </div>
+                    <div>
+                        <a href="{{ route('manager.line_info') }}" class="text-gray-500">回答分析</a>
                     </div>
                 @endauth
             </div>
@@ -72,5 +98,6 @@
             <p>ログインしてください。</p>
         @endauth
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
 </body>
 </html>
