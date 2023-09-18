@@ -32,10 +32,10 @@
                     </div>
                 </div>
                 <div>
-                    <a href="{{ route('manager.line_info') }}" class="text-gray-500">ユーザーチャット</a>
+                    <a href="{{ route('manager.line_info') }}" class="text-gray-500">ユーザーチャット(未実装)</a>
                 </div>
                 <div>
-                    <a href="{{ route('manager.analysis') }}" class="text-gray-500">回答分析</a>
+                    <a href="{{ route('manager.analysis') }}" class="text-gray-500">回答分析(未実装)</a>
                 </div>
                 <div class="ml-4">
                     <form method="POST" action="{{ route('manager.logout') }}">

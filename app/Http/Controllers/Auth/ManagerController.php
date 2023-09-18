@@ -136,21 +136,32 @@ class ManagerController extends Controller
      */
     public function settings()
     {
-        $manager = Auth::guard("manager")->user();
-        // var_dump($manager);
-        // exit;
         $decryptedChannel_token = "";
+        $decryptedChannel_secret = "";
+        $decryptedChannel_id = "";
+        $manager = Auth::guard("manager")->user();
 
         if (!empty($manager->channel_token)) {
             $decryptedChannel_token = Crypt::decryptString(
                 $manager->channel_token
             );
-            // チャネルトークンが暗号化されていない場合はそのまま代入
+        }
+
+        if (!empty($manager->channel_secret)) {
+            $decryptedChannel_secret = Crypt::decryptString(
+                $manager->channel_secret
+            );
+        }
+
+        if (!empty($manager->channel_id)) {
+            $decryptedChannel_id = Crypt::decryptString($manager->channel_id);
         }
 
         return view("manager.settings")->with([
             "manager" => $manager,
             "decryptedChannel_token" => $decryptedChannel_token,
+            "decryptedChannel_secret" => $decryptedChannel_secret,
+            "decryptedChannel_id" => $decryptedChannel_id,
         ]);
     }
 
@@ -160,11 +171,13 @@ class ManagerController extends Controller
     public function updateSettings(Request $request)
     {
         $request->validate([
-            "last_name" => "required|max:255",
-            "first_name" => "required|max:255",
-            "last_name_kana" => "required|max:255",
-            "first_name_kana" => "required|max:255",
-            "channel_token" => "string|nullable",
+            "last_name" => "string|nullable|max:50",
+            "first_name" => "string|nullable|max:50",
+            "last_name_kana" => "string|nullable|max:50",
+            "first_name_kana" => "string|nullable|max:50",
+            "channel_token" => "string|nullable|max:250",
+            "channel_secret" => "string|nullable|max:250",
+            "channel_id" => "string|nullable|max:250",
         ]);
 
         try {
@@ -175,12 +188,29 @@ class ManagerController extends Controller
             $manager->first_name = $request->first_name;
             $manager->last_name_kana = $request->last_name_kana;
             $manager->first_name_kana = $request->first_name_kana;
+
             if (!empty($request->channel_token)) {
                 $manager->channel_token = Crypt::encryptString(
                     $request->channel_token
                 );
             } else {
                 $manager->channel_token = null;
+            }
+
+            if (!empty($request->channel_secret)) {
+                $manager->channel_secret = Crypt::encryptString(
+                    $request->channel_secret
+                );
+            } else {
+                $manager->channel_secret = null;
+            }
+
+            if (!empty($request->channel_id)) {
+                $manager->channel_id = Crypt::encryptString(
+                    $request->channel_id
+                );
+            } else {
+                $manager->channel_id = null;
             }
 
             $manager->save();

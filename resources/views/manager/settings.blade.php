@@ -19,9 +19,19 @@
                 <h2 class="text-xl font-semibold mb-4">ユーザー設定</h2>
 
                 @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 mb-4 rounded">
-                        <strong class="font-bold">成功！</strong>
+                    <div id="success-message" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 mb-4 rounded">
+                        <strong class="font-bold">情報を更新しました</strong>
                         <span class="block sm:inline">{{ session('success') }}</span>
+                    </div>
+                @endif
+                @if ($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-4 rounded">
+                        <strong class="font-bold">更新処理が失敗しました</strong>
+                        <ul>
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 @endif
 
@@ -49,6 +59,16 @@
                     </div>
 
                     <div>
+                        <label for="channel_id" class="font-semibold">チャネルID:</label>
+                        <input id="channel_id" type="text" name="channel_id" value="{{ $decryptedChannel_id }}">
+                    </div>
+
+                    <div>
+                        <label for="channel_secret" class="font-semibold">チャネルシークレット:</label>
+                        <input id="channel_secret" type="text" name="channel_secret" value="{{ $decryptedChannel_secret }}">
+                    </div>
+
+                    <div>
                         <label for="channel_token" class="font-semibold">チャネルアクセストークン:</label>
                         <input id="channel_token" type="text" name="channel_token" value="{{ $decryptedChannel_token }}">
                     </div>
@@ -67,5 +87,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.7.0/flowbite.min.js"></script>
 
     <!-- Scripts omitted for brevity -->
+    <script>
+        // 成功メッセージを5秒後に消す
+        setTimeout(function() {
+            const successMessage = document.getElementById('success-message');
+            if (successMessage) {
+                successMessage.style.display = 'none';
+            }
+        }, 5000);
+    </script>
 </body>
 </html>
