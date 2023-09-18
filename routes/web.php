@@ -78,3 +78,8 @@ Route::post(
     "/line/webhook/message",
     "App\Http\Controllers\LineWebhookController@message"
 )->name("line.webhook.message");
+
+Route::post(
+    "/line/webhook/callback-test",
+    "App\Http\Controllers\LineWebhookController@test"
+)->name("line.webhook.callback-test");
