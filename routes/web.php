@@ -30,7 +30,10 @@ Route::group(["middleware" => ["auth:manager"]], function () {
     Route::get("/manager/line-info", [
         LineInfoController::class,
         "index",
-    ])->name("manager.line_info");
+    ])->name("manager.chat");
+    Route::get("/manager/chat", [LineInfoController::class, "chat"])->name(
+        "manager.line_info"
+    );
     // 質問関連
     Route::get("/manager/create-question", [
         QuestionController::class,

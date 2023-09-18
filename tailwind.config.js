@@ -11,7 +11,11 @@ export default {
         }
     },
     theme: {
-        extend: {},
+        extend: {
+            height: {
+                '42rem': '42rem'
+            }
+        },
     },
     plugins: [],
 }

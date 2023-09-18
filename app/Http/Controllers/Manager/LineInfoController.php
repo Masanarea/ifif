@@ -19,4 +19,8 @@ class LineInfoController extends Controller
 
         return view("manager.line_info", ["lineInfos" => $lineInfos]);
     }
+    public function chat()
+    {
+        return view("manager.line_chat");
+    }
 }
