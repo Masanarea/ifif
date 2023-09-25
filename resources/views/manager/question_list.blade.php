@@ -28,7 +28,10 @@
                         @foreach($question->options as $option)
                             <li class="ml-4">{{ $option->value }}</li>
                         @endforeach
-                    </ul>
+                    </ul><br>
+                    <a href="{{ route('manager.edit_question', ['id' => $question->id]) }}" class="bg-blue-500 text-white px-4 py-2 rounded">
+                        編集
+                    </a>
                 </div>
             @empty
                 <p>質問が登録されていません。</p>

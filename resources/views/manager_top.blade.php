@@ -48,7 +48,7 @@
                     <dd class="mb-2">{{ $decryptedChannel_token }}</dd>
 
                     <dt class="font-semibold">Webhook URL</dt>
-                    <dd class="mb-2">https://b93c-125-103-218-181.ngrok-free.app/line/webhook/message?manager_id={{ $encrypted_manager_id }}</dd>
+                    <dd class="mb-2">{{ $webhookURL }}</dd>
 
                 </dl>
             </div>

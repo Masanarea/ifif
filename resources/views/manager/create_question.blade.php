@@ -30,7 +30,7 @@
                 <div class="mb-4">
                     <label for="options" class="block text-gray-700">選択肢</label>
                     <textarea name="options" id="options" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" rows="3" required></textarea>
-                    <p class="text-xs text-gray-600">選択肢は、コンマで区切ってください。<br>(例: 友達,親友,赤の他人)</p>
+                    <p class="text-xs text-gray-600">選択肢は、コンマで区切ってください。<br>(例: 質問１の答え,質問2の答え,質問3の答え)</p>
                 </div>
                 <div class="mb-4">
                     <label for="question" class="block text-gray-700">順番(昇順)</label>

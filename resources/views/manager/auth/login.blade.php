@@ -49,6 +49,10 @@
                     </button>
                 </div>
             </form>
+            <div class="mt-4 text-center">
+                <span class="text-gray-600">アカウントをお持ちでないですか？<br></span>
+                <a href="{{ route('manager.register') }}" class="text-blue-500">>> 新規登録はこちら</a>
+            </div>
         </div>
     </div>
 </body>

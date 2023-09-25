@@ -43,6 +43,14 @@ Route::group(["middleware" => ["auth:manager"]], function () {
         QuestionController::class,
         "store",
     ])->name("manager.store_question");
+    Route::get("/manager/questions/{id}/edit", [
+        QuestionController::class,
+        "edit",
+    ])->name("manager.edit_question");
+    Route::put("/manager/questions/{id}", [
+        QuestionController::class,
+        "update",
+    ])->name("manager.update_question");
     Route::get("/manager/question-list", [
         QuestionController::class,
         "index",
@@ -78,8 +86,3 @@ Route::post(
     "/line/webhook/message",
     "App\Http\Controllers\LineWebhookController@message"
 )->name("line.webhook.message");
-
-Route::post(
-    "/line/webhook/callback",
-    "App\Http\Controllers\LineWebhookBetaController@index"
-)->name("line.webhook.callback");

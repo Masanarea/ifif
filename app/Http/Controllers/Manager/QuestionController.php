@@ -55,4 +55,39 @@ class QuestionController extends Controller
             ->route("manager.question_list")
             ->with("success", "新しい質問が作成されました");
     }
+
+    public function edit($id)
+    {
+        $question = Question::with("options")->findOrFail($id);
+        return view("manager.edit_question", compact("question"));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $managerId = Auth::guard("manager")->user()->id;
+
+        // 指定されたIDの質問を取得
+        $question = Question::where("manager_id", $managerId)->findOrFail($id);
+
+        // 質問を更新
+        $question->question = $request->input("question");
+        $question->sort_num = $request->input("sort_num");
+        $question->save();
+
+        // 既存の選択肢を削除
+        $question->options()->delete();
+
+        // 新しい選択肢を作成
+        $options = explode(",", $request->input("options"));
+        foreach ($options as $value) {
+            $option = new Option();
+            $option->value = $value;
+            $option->question_id = $question->id;
+            $option->save();
+        }
+
+        return redirect()
+            ->route("manager.question_list")
+            ->with("success", "質問が更新されました");
+    }
 }

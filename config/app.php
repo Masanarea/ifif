@@ -187,4 +187,6 @@ return [
             // 'Example' => App\Facades\Example::class,
         ])
         ->toArray(),
+
+    "DOMAIN_URL" => env("DOMAIN_URL"),
 ];

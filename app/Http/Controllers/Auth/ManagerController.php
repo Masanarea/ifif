@@ -61,11 +61,16 @@ class ManagerController extends Controller
         $encrypted_manager_id = Crypt::encryptString(
             Auth::guard("manager")->user()->id
         );
+
+        $webhookURL =
+            config("app.DOMAIN_URL") .
+            "/line/webhook/message?manager_id=" .
+            $encrypted_manager_id;
         return view("manager_top", [
             "decryptedChannel_id" => $channel_id,
             "decryptedChannel_secret" => $channel_secret,
             "decryptedChannel_token" => $channel_token,
-            "encrypted_manager_id" => $encrypted_manager_id,
+            "webhookURL" => $webhookURL,
         ]);
     }
 
