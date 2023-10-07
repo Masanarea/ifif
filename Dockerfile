@@ -28,15 +28,12 @@ RUN composer install
 ### ディレクトリ権限の設定 ###
 RUN chmod -R 775 storage bootstrap/cache
 
-### Nginxの処理 ###
-WORKDIR /etc/nginx
-COPY laravel.conf ./sites-available
-RUN ln -s /etc/nginx/sites-available/laravel.conf sites-enabled/ && \
-   rm sites-enabled/default && \
-   rm sites-available/default && \
-   nginx -t
-ADD run.sh /root/
-RUN chmod a+x /root/run.sh
+### Nginxの設定をコピー ###
+COPY laravel.conf /etc/nginx/sites-available/laravel.conf
 
-### run.sh→php-fpmの起動,Nginxの起動 ###
+### 実行スクリプトをコピー ###
+COPY run.sh /root/run.sh
+
+### 実行スクリプトを実行 ###
+RUN chmod +x /root/run.sh
 CMD ["/root/run.sh"]
