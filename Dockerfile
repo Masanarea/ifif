@@ -1,26 +1,42 @@
-FROM node:16-slim as node-builder
+### DockerhubからUbuntuイメージをpull ###
+FROM ubuntu:20.04
 
-COPY . ./app
-RUN cd /app && npm ci && npm run prod
+### 環境設定を指定 ###
+ENV DEBIAN_FRONTEND=noninteractive
 
+### composerイメージをインストール ###
+COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
 
-FROM php:8.1.5-apache
+### Laravelに必要なソフトウェアをインストール ###
+RUN apt-get update && \
+   apt-get -y upgrade && \
+   apt-get -y install software-properties-common && \
+   LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php && \
+   apt-get -y install tzdata && \
+   apt-get -y install php8.0 php8.0-dom php8.0-mbstring php8.0-curl php8.0-mysql php8.0-fpm php8.0-redis php8.0-zip php8.0-gd && \
+   apt-get -y install git zip unzip mysql-client && \
+   apt-get -y remove apache2 && \
+   apt-get -y install nginx
 
-RUN apt-get update && apt-get install -y \
-  zip \
-  unzip \
-  git
-
-RUN docker-php-ext-install -j "$(nproc)" opcache && docker-php-ext-enable opcache
-
-RUN sed -i 's/80/8080/g' /etc/apache2/sites-available/000-default.conf /etc/apache2/ports.conf
-RUN sed -i 's#/var/www/html#/var/www/html/public#g' /etc/apache2/sites-available/000-default.conf
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-
-COPY --from=composer:2.0 /usr/bin/composer /usr/bin/composer
-
+### Laravelプロジェクトのコピー ###
 WORKDIR /var/www/html
-COPY . ./
-COPY --from=node-builder /app/public ./public
+COPY . /var/www/html
+
+### 依存関係のインストール ###
 RUN composer install
-RUN chown -Rf www-data:www-data ./
+
+### ディレクトリ権限の設定 ###
+RUN chmod -R 775 storage bootstrap/cache
+
+### Nginxの処理 ###
+WORKDIR /etc/nginx
+COPY laravel.conf ./sites-available
+RUN ln -s /etc/nginx/sites-available/laravel.conf sites-enabled/ && \
+   rm sites-enabled/default && \
+   rm sites-available/default && \
+   nginx -t
+ADD run.sh /root/
+RUN chmod a+x /root/run.sh
+
+### run.sh→php-fpmの起動,Nginxの起動 ###
+CMD ["/root/run.sh"]
