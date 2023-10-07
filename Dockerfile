@@ -18,14 +18,19 @@ RUN apt-get update && \
    apt-get -y remove apache2 && \
    apt-get -y install nginx
 
-### Laravelプロジェクトのコピー ###
+### 非rootユーザーの作成 ###
+RUN useradd -m laraveluser && echo "laraveluser:laraveluser" | chpasswd && adduser laraveluser sudo
+USER laraveluser
 WORKDIR /var/www/html
-COPY . /var/www/html
+
+### Laravelプロジェクトのコピー ###
+COPY --chown=laraveluser:laraveluser . /var/www/html
 
 ### 依存関係のインストール ###
-RUN composer install
+RUN composer update
 
 ### ディレクトリ権限の設定 ###
+USER root
 RUN chmod -R 775 storage bootstrap/cache
 
 ### Nginxの設定をコピー ###
