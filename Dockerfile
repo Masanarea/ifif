@@ -1,44 +1,21 @@
-### DockerhubからUbuntuイメージをpull ###
-FROM ubuntu:20.04
+# richarvey/nginx-php-fpmをベースとする
+FROM richarvey/nginx-php-fpm:2.1.2
 
-### 環境設定を指定 ###
-ENV DEBIAN_FRONTEND=noninteractive
+COPY . .
 
-### composerイメージをインストール ###
-COPY --from=composer:2.0.9 /usr/bin/composer /usr/local/bin/composer
+# Image config
+ENV SKIP_COMPOSER 1
+ENV WEBROOT /var/www/html/public
+ENV PHP_ERRORS_STDERR 1
+ENV RUN_SCRIPTS 1
+ENV REAL_IP_HEADER 1
 
-### Laravelに必要なソフトウェアをインストール ###
-RUN apt-get update && \
-   apt-get -y upgrade && \
-   apt-get -y install software-properties-common && \
-   LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php && \
-   apt-get -y install tzdata && \
-   apt-get -y install php8.0 php8.0-dom php8.0-mbstring php8.0-curl php8.0-mysql php8.0-fpm php8.0-redis php8.0-zip php8.0-gd && \
-   apt-get -y install git zip unzip mysql-client && \
-   apt-get -y remove apache2 && \
-   apt-get -y install nginx
+# Laravel config
+ENV APP_ENV production
+ENV APP_DEBUG false
+ENV LOG_CHANNEL stderr
 
-### 非rootユーザーの作成 ###
-RUN useradd -m laraveluser && echo "laraveluser:laraveluser" | chpasswd && adduser laraveluser sudo
-USER laraveluser
-WORKDIR /var/www/html
+# Allow composer to run as root
+ENV COMPOSER_ALLOW_SUPERUSER 1
 
-### Laravelプロジェクトのコピー ###
-COPY --chown=laraveluser:laraveluser . /var/www/html
-
-### 依存関係のインストール ###
-RUN composer update
-
-### ディレクトリ権限の設定 ###
-USER root
-RUN chmod -R 775 storage bootstrap/cache
-
-### Nginxの設定をコピー ###
-COPY laravel.conf /etc/nginx/sites-available/laravel.conf
-
-### 実行スクリプトをコピー ###
-COPY run.sh /root/run.sh
-
-### 実行スクリプトを実行 ###
-RUN chmod +x /root/run.sh
-CMD ["/root/run.sh"]
+CMD ["/start.sh"]
